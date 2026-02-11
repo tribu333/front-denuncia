@@ -11,7 +11,7 @@ export const authService = {
         },
         body: JSON.stringify({ username, password, recordar }),
       });
-      console.log(response);
+      //console.log(response);
       // Manejar errores HTTP
       if (!response.ok) {
         if (response.status === 401) {

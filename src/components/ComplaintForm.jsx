@@ -3,9 +3,11 @@ import { useState } from 'react';
 import { complaintService } from '../services/ComplaintService';
 import { imageService } from '../services/ImageService';
 import ImageUploader from '../components/ImageUploader';
+import { useNavigate } from 'react-router-dom';
 import './ComplaintForm.css';
 
 const ComplaintForm = () => {
+  const navigate = useNavigate(); // 👈 HOOK DE NAVEGACIÓN
   const [formData, setFormData] = useState({
     complaintType: '',
     incidentDate: '',
@@ -144,12 +146,24 @@ const ComplaintForm = () => {
       setLoading(false);
     }
   };
-
+  const handleLoginClick = () => {
+    navigate('/login'); // 👈 REDIRIGIR AL LOGIN
+  };
   return (
     <div className="complaint-form-container">
       <div className="complaint-form-header">
-        <h1>📋 Sistema de Denuncias Anónimas</h1>
-        <p>Complete el formulario para registrar su denuncia de forma confidencial</p>
+        <div className="header-top">
+          <div className="header-title">
+            <h1>📋 Sistema de Denuncias Anónimas</h1>
+            <p>Complete el formulario para registrar su denuncia de forma confidencial</p>
+          </div>
+          <button 
+            onClick={handleLoginClick}
+            className="btn-login-header"
+          >
+            🔐 Iniciar Sesión
+          </button>
+        </div>
       </div>
 
       {success && (

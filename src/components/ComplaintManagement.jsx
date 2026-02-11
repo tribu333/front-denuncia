@@ -131,6 +131,15 @@ const ComplaintManagement = () => {
   const selectSearchResult = (complaint) => {
     setSearchTerm(complaint.complaintCode);
     setShowSearchResults(false);
+     // ✅ CREAR UN ARRAY CON LA DENUNCIA SELECCIONADA Y MOSTRARLO EN LA TABLA
+    setComplaints([complaint]);
+    
+    // Opcional: Resetear la paginación
+    setTotalPages(1);
+    setCurrentPage(0);
+    
+    // Cargar detalles si es necesario
+    loadComplaintDetails(complaint.id);
     // Cargar detalles de la denuncia seleccionada
     loadComplaintDetails(complaint.id);
   };

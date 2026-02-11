@@ -25,17 +25,16 @@ const ComplaintForm = () => {
     'Incumplimiento de Normas',
     'Conducta Inapropiada',
     'Abuso de Autoridad',
+    'Intento de Soborno',
     'Otro'
   ];
 
   const departments = [
     'Recursos Humanos',
-    'Finanzas',
-    'Operaciones',
-    'Tecnología',
-    'Ventas',
-    'Marketing',
-    'Administración',
+    'Tecnologias',
+    'SIFDE',
+    'Secretaria de camara',
+    'Sereci',
     'Otro'
   ];
 

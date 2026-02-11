@@ -30,12 +30,10 @@ const ComplaintManagement = () => {
 
   const departments = [
     'Recursos Humanos',
-    'Finanzas',
-    'Operaciones',
-    'Tecnología',
-    'Ventas',
-    'Marketing',
-    'Administración',
+    'Tecnologias',
+    'SIFDE',
+    'Secretaria de camara',
+    'Sereci',
     'Otro'
   ];
 
@@ -45,6 +43,7 @@ const ComplaintManagement = () => {
     'Incumplimiento de Normas',
     'Conducta Inapropiada',
     'Abuso de Autoridad',
+    'Intento de Soborno',
     'Otro'
   ];
 

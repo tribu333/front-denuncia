@@ -1,20 +1,25 @@
 // components/ImageUploader.jsx
-import { useState, useRef } from 'react';
-import { imageService } from '../services/ImageService';
+import { useState, useRef, useEffect } from 'react';
 import './ImageUploader.css';
 
-const ImageUploader = ({ denunciaId, onUploadSuccess, onUploadError, maxImages = 5 }) => {
+const ImageUploader = ({ onImagesChange, maxImages = 5 }) => {
   const [images, setImages] = useState([]);
-  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const fileInputRef = useRef(null);
+
+  // Notificar al componente padre cuando cambien las imágenes
+  useEffect(() => {
+    if (onImagesChange) {
+      onImagesChange(images);
+    }
+  }, [images, onImagesChange]);
 
   const handleFileSelect = (e) => {
     const selectedFiles = Array.from(e.target.files);
     
     // Validar cantidad máxima de imágenes
     if (images.length + selectedFiles.length > maxImages) {
-      setError(`Solo puedes subir máximo ${maxImages} imágenes`);
+      setError(`Solo puedes seleccionar máximo ${maxImages} imágenes`);
       return;
     }
 
@@ -44,9 +49,7 @@ const ImageUploader = ({ denunciaId, onUploadSuccess, onUploadError, maxImages =
       preview: URL.createObjectURL(file),
       name: file.name,
       size: file.size,
-      uploading: false,
-      uploaded: false,
-      error: false
+      id: Date.now() + Math.random() // ID temporal único
     }));
 
     setImages(prev => [...prev, ...newImages]);
@@ -55,57 +58,35 @@ const ImageUploader = ({ denunciaId, onUploadSuccess, onUploadError, maxImages =
     e.target.value = '';
   };
 
-  const removeImage = (index) => {
+  const removeImage = (id) => {
     setImages(prev => {
-      const newImages = [...prev];
-      // Liberar el objeto URL para evitar memory leaks
-      if (newImages[index].preview) {
-        URL.revokeObjectURL(newImages[index].preview);
+      const imageToRemove = prev.find(img => img.id === id);
+      if (imageToRemove?.preview) {
+        URL.revokeObjectURL(imageToRemove.preview);
       }
-      newImages.splice(index, 1);
-      return newImages;
+      return prev.filter(img => img.id !== id);
     });
   };
 
-  const uploadImages = async () => {
-    if (!denunciaId) {
-      setError('No se ha creado la denuncia aún');
-      return;
-    }
-
-    if (images.length === 0) {
-      setError('No hay imágenes para subir');
-      return;
-    }
-
-    setUploading(true);
-    setError('');
-
-    try {
-      const filesToUpload = images.map(img => img.file);
-      const response = await imageService.uploadMultipleImages(filesToUpload, denunciaId);
-      
-      // Marcar imágenes como subidas exitosamente
-      setImages(prev => prev.map(img => ({
-        ...img,
-        uploaded: true,
-        uploading: false
-      })));
-
-      if (onUploadSuccess) {
-        onUploadSuccess(response);
-      }
-    } catch (err) {
-      setError('Error al subir las imágenes. Por favor, intente nuevamente.');
-      console.error('Error uploading images:', err);
-      
-      if (onUploadError) {
-        onUploadError(err);
-      }
-    } finally {
-      setUploading(false);
-    }
+  const reorderImages = (startIndex, endIndex) => {
+    setImages(prev => {
+      const result = [...prev];
+      const [removed] = result.splice(startIndex, 1);
+      result.splice(endIndex, 0, removed);
+      return result;
+    });
   };
+
+  // Limpiar URLs al desmontar
+  useEffect(() => {
+    return () => {
+      images.forEach(img => {
+        if (img.preview) {
+          URL.revokeObjectURL(img.preview);
+        }
+      });
+    };
+  }, []);
 
   return (
     <div className="image-uploader">
@@ -118,17 +99,14 @@ const ImageUploader = ({ denunciaId, onUploadSuccess, onUploadError, maxImages =
 
       <div className="image-grid">
         {images.map((image, index) => (
-          <div key={index} className="image-preview-item">
+          <div key={image.id} className="image-preview-item">
             <div className="preview-container">
               <img src={image.preview} alt={`Preview ${index + 1}`} />
-              {image.uploaded && (
-                <span className="upload-status success">✓</span>
-              )}
+              <span className="image-order">{index + 1}</span>
               <button 
                 type="button"
                 className="remove-image-btn"
-                onClick={() => removeImage(index)}
-                disabled={uploading || image.uploaded}
+                onClick={() => removeImage(image.id)}
               >
                 ×
               </button>
@@ -139,6 +117,8 @@ const ImageUploader = ({ denunciaId, onUploadSuccess, onUploadError, maxImages =
                 {(image.size / 1024).toFixed(1)} KB
               </span>
             </div>
+            {/* Indicadores de arrastre para reordenar */}
+            <div className="image-drag-handle">⋮⋮</div>
           </div>
         ))}
 
@@ -170,22 +150,12 @@ const ImageUploader = ({ denunciaId, onUploadSuccess, onUploadError, maxImages =
         </div>
       )}
 
-      {images.length > 0 && denunciaId && (
-        <div className="uploader-actions">
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={uploadImages}
-            disabled={uploading || images.every(img => img.uploaded)}
-          >
-            {uploading ? 'Subiendo imágenes...' : 'Subir imágenes'}
-          </button>
-        </div>
-      )}
-
-      {!denunciaId && images.length > 0 && (
-        <div className="uploader-info-message">
-          ℹ️ Primero debe crear la denuncia para poder subir las imágenes
+      {images.length > 0 && (
+        <div className="uploader-summary">
+          <p className="summary-text">
+            ✅ {images.length} {images.length === 1 ? 'imagen seleccionada' : 'imágenes seleccionadas'}
+            {images.length === maxImages && ' (máximo alcanzado)'}
+          </p>
         </div>
       )}
     </div>

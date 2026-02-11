@@ -1,6 +1,7 @@
-// ComplaintForm.jsx (actualizado)
+// ComplaintForm.jsx (versión final)
 import { useState } from 'react';
 import { complaintService } from '../services/ComplaintService';
+import { imageService } from '../services/ImageService';
 import ImageUploader from '../components/ImageUploader';
 import './ComplaintForm.css';
 
@@ -16,12 +17,12 @@ const ComplaintForm = () => {
     workerPosition: ''
   });
 
+  const [selectedImages, setSelectedImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
   const [complaintCode, setComplaintCode] = useState('');
-  const [denunciaId, setDenunciaId] = useState(null);
-  const [imagesUploaded, setImagesUploaded] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const complaintTypes = [
     'Acoso Laboral',
@@ -50,48 +51,98 @@ const ComplaintForm = () => {
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    setSuccess(false);
+  const handleImagesChange = (images) => {
+    setSelectedImages(images);
+  };
 
+  const validateForm = () => {
+    if (!formData.complaintType) return 'Debe seleccionar un tipo de denuncia';
+    if (!formData.incidentDate) return 'Debe seleccionar la fecha del incidente';
+    if (!formData.description) return 'Debe proporcionar una descripción del incidente';
+    if (!formData.workerFullName) return 'Debe proporcionar el nombre del trabajador involucrado';
+    return null;
+  };
+
+  const uploadImages = async (denunciaId) => {
+    if (selectedImages.length === 0) return [];
+    
     try {
-      const response = await complaintService.createComplaint(formData);
-      setSuccess(true);
-      setComplaintCode(response.complaintCode);
-      setDenunciaId(response.id); // Asumiendo que el backend retorna el ID
-      
-      // Limpiar formulario
-      setFormData({
-        complaintType: '',
-        incidentDate: '',
-        description: '',
-        workerFullName: '',
-        workerDescription: '',
-        location: '',
-        department: '',
-        workerPosition: ''
-      });
-
-      // Scroll al inicio para ver el mensaje de éxito
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } catch (err) {
-      setError('Error al enviar la denuncia. Por favor, intente nuevamente.');
-      console.error(err);
-    } finally {
-      setLoading(false);
+      const files = selectedImages.map(img => img.file);
+      const response = await imageService.uploadMultipleImages(files, denunciaId);
+      return response.imagenes || [];
+    } catch (error) {
+      console.error('Error al subir imágenes:', error);
+      throw new Error('Error al subir las imágenes: ' + error.message);
     }
   };
 
-  const handleUploadSuccess = (response) => {
-    setImagesUploaded(true);
-    console.log('Imágenes subidas exitosamente:', response);
-  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Validar formulario
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
 
-  const handleUploadError = (error) => {
-    console.error('Error al subir imágenes:', error);
-    // Puedes mostrar un mensaje de error adicional si lo deseas
+    setLoading(true);
+    setError('');
+    setSuccess(false);
+    setUploadProgress(0);
+
+    try {
+      // 1. Crear la denuncia
+      setUploadProgress(20);
+      const complaintResponse = await complaintService.createComplaint(formData);
+      const denunciaId = complaintResponse.id;
+      
+      setUploadProgress(50);
+      
+      // 2. Subir imágenes si hay alguna seleccionada
+      let imagesUploaded = [];
+      if (selectedImages.length > 0) {
+        setUploadProgress(60);
+        imagesUploaded = await uploadImages(denunciaId);
+        setUploadProgress(90);
+      }
+
+      // 3. Mostrar éxito
+      setSuccess(true);
+      setComplaintCode(complaintResponse.complaintCode);
+      setUploadProgress(100);
+      
+      // 4. Limpiar formulario después de 3 segundos
+      setTimeout(() => {
+        setFormData({
+          complaintType: '',
+          incidentDate: '',
+          description: '',
+          workerFullName: '',
+          workerDescription: '',
+          location: '',
+          department: '',
+          workerPosition: ''
+        });
+        setSelectedImages([]);
+        setUploadProgress(0);
+      }, 3000);
+
+      // Scroll al inicio para ver el mensaje de éxito
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      console.log('Denuncia creada exitosamente:', complaintResponse);
+      if (imagesUploaded.length > 0) {
+        console.log(`${imagesUploaded.length} imágenes subidas exitosamente`);
+      }
+
+    } catch (err) {
+      console.error('Error en el proceso:', err);
+      setError(err.message || 'Error al enviar la denuncia. Por favor, intente nuevamente.');
+      setUploadProgress(0);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -106,17 +157,29 @@ const ComplaintForm = () => {
           <h3>✓ Denuncia registrada exitosamente</h3>
           <p>Su código de seguimiento es: <strong>{complaintCode}</strong></p>
           <p>Guarde este código para consultar el estado de su denuncia.</p>
-          {denunciaId && !imagesUploaded && (
+          {selectedImages.length > 0 && (
             <p className="alert-note">
-              ℹ️ Ahora puede adjuntar imágenes como evidencia en la sección de abajo
+              📸 Se subieron {selectedImages.length} {selectedImages.length === 1 ? 'imagen' : 'imágenes'} como evidencia
             </p>
           )}
+          <p className="alert-note">El formulario se limpiará automáticamente...</p>
         </div>
       )}
 
       {error && (
         <div className="alert alert-error">
           <p>{error}</p>
+        </div>
+      )}
+
+      {uploadProgress > 0 && uploadProgress < 100 && (
+        <div className="progress-bar-container">
+          <div 
+            className="progress-bar" 
+            style={{ width: `${uploadProgress}%` }}
+          >
+            {uploadProgress}%
+          </div>
         </div>
       )}
 
@@ -235,29 +298,39 @@ const ComplaintForm = () => {
           </div>
         </div>
 
+        {/* Sección de imágenes integrada en el formulario */}
+        <div className="form-section images-section">
+          <ImageUploader 
+            onImagesChange={handleImagesChange}
+            maxImages={5}
+          />
+        </div>
+
         <div className="form-actions">
-          <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? 'Enviando...' : 'Enviar Denuncia'}
+          <button 
+            type="submit" 
+            className="btn btn-primary"
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <span className="spinner"></span>
+                Procesando...
+              </>
+            ) : (
+              `Enviar Denuncia ${selectedImages.length > 0 ? `con ${selectedImages.length} ${selectedImages.length === 1 ? 'imagen' : 'imágenes'}` : ''}`
+            )}
           </button>
         </div>
 
         <div className="form-footer">
           <p>* Campos obligatorios</p>
           <p>Su identidad permanecerá anónima y confidencial</p>
+          <p className="footer-note">
+            Las imágenes se subirán automáticamente al enviar la denuncia
+          </p>
         </div>
       </form>
-
-      {/* Sección de imágenes - Solo se muestra después de crear la denuncia */}
-      {denunciaId && (
-        <div className="form-section images-section">
-          <ImageUploader
-            denunciaId={denunciaId}
-            onUploadSuccess={handleUploadSuccess}
-            onUploadError={handleUploadError}
-            maxImages={5}
-          />
-        </div>
-      )}
     </div>
   );
 };

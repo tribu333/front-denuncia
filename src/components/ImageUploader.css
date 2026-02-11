@@ -1,6 +1,6 @@
 /* components/ImageUploader.css */
 .image-uploader {
-  margin-top: 2rem;
+  margin-top: 1rem;
   padding: 1.5rem;
   background-color: #f8f9fa;
   border-radius: 8px;
@@ -15,6 +15,9 @@
   margin: 0 0 0.5rem 0;
   color: #495057;
   font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .uploader-info {
@@ -25,16 +28,23 @@
 
 .image-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 1rem;
   margin-bottom: 1rem;
 }
 
 .image-preview-item {
   background: white;
-  border-radius: 6px;
+  border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  position: relative;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.image-preview-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
 .preview-container {
@@ -47,6 +57,22 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.image-order {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(0, 123, 255, 0.9);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
 }
 
 .remove-image-btn {
@@ -65,36 +91,18 @@
   justify-content: center;
   font-size: 18px;
   transition: all 0.2s;
+  z-index: 2;
 }
 
-.remove-image-btn:hover:not(:disabled) {
+.remove-image-btn:hover {
   background: rgb(220, 53, 69);
   transform: scale(1.1);
-}
-
-.remove-image-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.upload-status {
-  position: absolute;
-  bottom: 5px;
-  right: 5px;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: #28a745;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
 }
 
 .image-info {
   padding: 0.5rem;
   font-size: 0.75rem;
+  background: white;
 }
 
 .image-name {
@@ -103,17 +111,35 @@
   overflow: hidden;
   text-overflow: ellipsis;
   color: #495057;
+  font-weight: 500;
 }
 
 .image-size {
   color: #6c757d;
   font-size: 0.7rem;
+  display: block;
+  margin-top: 2px;
+}
+
+.image-drag-handle {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  color: #adb5bd;
+  font-size: 16px;
+  cursor: move;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.image-preview-item:hover .image-drag-handle {
+  opacity: 1;
 }
 
 .image-upload-placeholder {
   aspect-ratio: 1;
   border: 2px dashed #ced4da;
-  border-radius: 6px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -133,16 +159,24 @@
   align-items: center;
   gap: 0.5rem;
   color: #6c757d;
+  text-align: center;
+  padding: 1rem;
 }
 
 .plus-icon {
-  font-size: 2rem;
+  font-size: 2.5rem;
   line-height: 1;
   color: #adb5bd;
+  margin-bottom: 0.5rem;
+}
+
+.placeholder-content span {
+  font-size: 0.9rem;
 }
 
 .placeholder-content small {
   color: #adb5bd;
+  font-size: 0.8rem;
 }
 
 .uploader-error {
@@ -152,18 +186,20 @@
   border-radius: 4px;
   color: #721c24;
   margin: 1rem 0;
+  font-size: 0.9rem;
 }
 
-.uploader-actions {
+.uploader-summary {
   margin-top: 1rem;
-  text-align: right;
+  padding: 0.75rem;
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  border-radius: 4px;
+  color: #155724;
 }
 
-.uploader-info-message {
-  padding: 0.75rem;
-  background-color: #cce5ff;
-  border: 1px solid #b8daff;
-  border-radius: 4px;
-  color: #004085;
-  margin: 1rem 0;
+.summary-text {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 500;
 }

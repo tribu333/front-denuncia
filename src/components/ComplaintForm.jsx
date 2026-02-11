@@ -159,7 +159,7 @@ const ComplaintForm = () => {
           </div>
           <button 
             onClick={handleLoginClick}
-            className="btn-login-header"
+            className="btn btn-primary"
           >
             🔐 Iniciar Sesión
           </button>

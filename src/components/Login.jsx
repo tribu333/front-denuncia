@@ -1,16 +1,16 @@
+// components/Login.jsx
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/Authservice';
 import './Login.css';
 
-const Login = () => {
+const Login = ({ onLoginSuccess }) => {
   const [credentials, setCredentials] = useState({
     username: '',
-    password: ''
+    password: '',
+    recordar: true,
   });
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -18,32 +18,37 @@ const Login = () => {
       ...prev,
       [name]: value
     }));
+    setError(''); // Limpiar error al escribir
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validaciones básicas
+    if (!credentials.username.trim()) {
+      setError('Ingrese su usuario');
+      return;
+    }
+    if (!credentials.password.trim()) {
+      setError('Ingrese su contraseña');
+      return;
+    }
+
     setLoading(true);
     setError('');
 
     try {
-      // Por ahora, simularemos un login exitoso
-      // Cuando tengas el endpoint real, descomenta la línea siguiente:
-      // await authService.login(credentials.username, credentials.password);
+      const response = await authService.login(credentials.username, credentials.password, credentials.recordar);
       
-      // Simulación temporal
-      if (credentials.username && credentials.password) {
-        localStorage.setItem('token', 'dummy-token');
-        localStorage.setItem('user', JSON.stringify({
-          username: credentials.username,
-          role: 'ADMIN'
-        }));
-        navigate('/gestion');
-      } else {
-        throw new Error('Credenciales inválidas');
+      console.log('Login exitoso:', response);
+      
+      if (onLoginSuccess) {
+        onLoginSuccess(response);
       }
-    } catch (err) {
-      setError('Usuario o contraseña incorrectos');
-      console.error(err);
+      
+    } catch (error) {
+      console.error('Error en login:', error);
+      setError(error.message || 'Error al iniciar sesión');
     } finally {
       setLoading(false);
     }
@@ -51,15 +56,15 @@ const Login = () => {
 
   return (
     <div className="login-container">
-      <div className="login-box">
+      <div className="login-card">
         <div className="login-header">
-          <h1>🔐 Acceso Administrativo</h1>
-          <p>Sistema de Gestión de Denuncias</p>
+          <h1>🔐 Sistema de Denuncias</h1>
+          <p>Inicie sesión para continuar</p>
         </div>
 
         {error && (
-          <div className="alert alert-error">
-            {error}
+          <div className="login-error">
+            ⚠️ {error}
           </div>
         )}
 
@@ -73,8 +78,8 @@ const Login = () => {
               value={credentials.username}
               onChange={handleChange}
               placeholder="Ingrese su usuario"
-              required
-              autoFocus
+              autoComplete="username"
+              disabled={loading}
             />
           </div>
 
@@ -87,17 +92,29 @@ const Login = () => {
               value={credentials.password}
               onChange={handleChange}
               placeholder="Ingrese su contraseña"
-              required
+              autoComplete="current-password"
+              disabled={loading}
             />
           </div>
 
-          <button type="submit" className="btn btn-login" disabled={loading}>
-            {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+          <button 
+            type="submit" 
+            className="btn-login"
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <span className="spinner"></span>
+                Iniciando sesión...
+              </>
+            ) : (
+              'Iniciar Sesión'
+            )}
           </button>
         </form>
 
         <div className="login-footer">
-          <a href="/" className="back-link">← Volver al formulario de denuncias</a>
+          <p>Acceso restringido a personal autorizado</p>
         </div>
       </div>
     </div>

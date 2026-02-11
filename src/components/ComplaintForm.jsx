@@ -4,6 +4,7 @@ import { complaintService } from '../services/ComplaintService';
 import { imageService } from '../services/ImageService';
 import ImageUploader from '../components/ImageUploader';
 import { useNavigate } from 'react-router-dom';
+import Navigation from './Navigation';
 import './ComplaintForm.css';
 
 const ComplaintForm = () => {
@@ -151,20 +152,13 @@ const ComplaintForm = () => {
   };
   return (
     <div className="complaint-form-container">
-      <div className="complaint-form-header">
-        <div className="header-top">
-          <div className="header-title">
-            <h1>📋 Sistema de Denuncias Anónimas</h1>
-            <p>Complete el formulario para registrar su denuncia de forma confidencial</p>
-          </div>
-          <button 
-            onClick={handleLoginClick}
-            className="btn btn-primary"
-          >
-            🔐 Iniciar Sesión
-          </button>
-        </div>
-      </div>
+      <Navigation
+        title="📋 Sistema de Denuncias Anónimas"
+        subtitle="Complete el formulario para registrar su denuncia de forma confidencial"
+        showAuth={true}
+        isAuthenticated={false}
+        onLoginClick={handleLoginClick}
+      />
 
       {success && (
         <div className="alert alert-success">

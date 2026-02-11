@@ -197,7 +197,7 @@ const ComplaintManagement = () => {
       </div>
 
       {/* Estadísticas */}
-      <div className="stats-grid">
+      {/* <div className="stats-grid">
         <div className="stat-card">
           <div className="stat-icon">📝</div>
           <div className="stat-content">
@@ -220,7 +220,7 @@ const ComplaintManagement = () => {
           </div>
         </div>
       </div>
-
+ */}
       {/* Búsqueda y Filtros */}
       <div className="search-filter-section">
         <div className="search-box">
@@ -272,7 +272,7 @@ const ComplaintManagement = () => {
             ))}
           </select>
 
-          <select
+          {/* <select
             value={filters.status}
             onChange={(e) => handleFilterChange('status', e.target.value)}
             className="filter-select"
@@ -281,7 +281,7 @@ const ComplaintManagement = () => {
             {statuses.map(status => (
               <option key={status} value={status}>{status}</option>
             ))}
-          </select>
+          </select> */}
 
           <button onClick={clearFilters} className="btn btn-clear">
             Limpiar Filtros

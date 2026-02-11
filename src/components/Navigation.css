@@ -1,0 +1,127 @@
+.navigation-header {
+  width: 100%;
+  background: linear-gradient(135deg, #e0e0e0 0%, #b0b0b0 100%);
+  border-radius: 12px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 25px 30px;
+}
+
+.navigation-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.navigation-title-section {
+  flex: 1;
+}
+
+.navigation-title {
+  color: #2c3e50;
+  font-size: 1.8rem;
+  margin-bottom: 8px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.navigation-subtitle {
+  color: #5a6a7a;
+  font-size: 0.95rem;
+  margin: 0;
+  font-weight: 400;
+}
+
+.navigation-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.btn {
+  padding: 12px 28px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.btn-login-nav {
+  background: linear-gradient(135deg, #808080 0%, #606060 100%);
+  color: white;
+  box-shadow: 0 4px 6px rgba(96, 96, 96, 0.2);
+}
+
+.btn-login-nav:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(96, 96, 96, 0.3);
+}
+
+.btn-logout-nav {
+  background: linear-gradient(135deg, #606060 0%, #404040 100%);
+  color: white;
+  box-shadow: 0 4px 6px rgba(64, 64, 64, 0.2);
+}
+
+.btn-logout-nav:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(64, 64, 64, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .navigation-header {
+    padding: 20px;
+  }
+
+  .navigation-content {
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+  }
+
+  .navigation-title-section {
+    width: 100%;
+  }
+
+  .navigation-title {
+    font-size: 1.5rem;
+    justify-content: center;
+  }
+
+  .navigation-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .navigation-actions {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .btn {
+    padding: 10px 24px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .navigation-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -24,11 +24,11 @@ const ImageUploader = ({ onImagesChange, maxImages = 5 }) => {
     }
 
     // Validar tipos de archivo
-    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'];
+    const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
     const invalidFiles = selectedFiles.filter(file => !validTypes.includes(file.type));
     
     if (invalidFiles.length > 0) {
-      setError('Solo se permiten archivos de imagen (JPEG, PNG, GIF)');
+      setError('Solo se permiten archivos de imagen (JPEG, PNG, JPG)');
       return;
     }
 
@@ -93,7 +93,7 @@ const ImageUploader = ({ onImagesChange, maxImages = 5 }) => {
       <div className="uploader-header">
         <h3>📸 Adjuntar Evidencias (Máximo {maxImages} imágenes)</h3>
         <p className="uploader-info">
-          Formatos permitidos: JPG, PNG, GIF | Tamaño máximo: 5MB por imagen
+          Formatos permitidos: JPG, PNG, JPEG | Tamaño máximo: 5MB por imagen
         </p>
       </div>
 
@@ -131,7 +131,7 @@ const ImageUploader = ({ onImagesChange, maxImages = 5 }) => {
               type="file"
               ref={fileInputRef}
               onChange={handleFileSelect}
-              accept="image/jpeg,image/png,image/gif,image/jpg"
+              accept="image/jpeg,image/png,image/jpg"
               multiple
               style={{ display: 'none' }}
             />

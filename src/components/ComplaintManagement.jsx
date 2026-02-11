@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { complaintService } from '../services/ComplaintService';
+import ComplaintDetailModal from '../components/ComplaintDetailModal'; 
 import { authService } from '../services/Authservice';
 import './ComplaintManagement.css';
 
@@ -9,7 +10,8 @@ const ComplaintManagement = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [stats, setStats] = useState({ total: 0, pending: 0, resolved: 0 });
-  
+  const [selectedComplaint, setSelectedComplaint] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   // Paginación
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -138,17 +140,27 @@ const ComplaintManagement = () => {
     setTotalPages(1);
     setCurrentPage(0);
     
-    // Cargar detalles si es necesario
-    loadComplaintDetails(complaint.id);
     // Cargar detalles de la denuncia seleccionada
     loadComplaintDetails(complaint.id);
   };
 
   const loadComplaintDetails = async (id) => {
-    // Aquí podrías mostrar un modal o navegar a una vista de detalle
-    console.log('Cargar detalles de denuncia:', id);
+    try {
+      // Buscar la denuncia completa en el array actual
+      const complaint = complaints.find(c => c.id === id);
+      if (complaint) {
+        setSelectedComplaint(complaint);
+        setIsModalOpen(true);
+      }
+    } catch (err) {
+      console.error('Error al cargar detalles:', err);
+    }
   };
-
+// Función para cerrar el modal
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedComplaint(null);
+  };
   const formatDate = (dateString) => {
     if (!dateString) return '-';
     const date = new Date(dateString);
@@ -305,7 +317,7 @@ const ComplaintManagement = () => {
                   <th>Departamento</th>
                   <th>Fecha Incidente</th>
                   <th>Fecha Registro</th>
-                  <th>Estado</th>
+                  {/* <th>Estado</th> */}
                   <th>Acciones</th>
                 </tr>
               </thead>
@@ -324,11 +336,11 @@ const ComplaintManagement = () => {
                     <td>{complaint.department || '-'}</td>
                     <td>{formatDate(complaint.incidentDate)}</td>
                     <td>{formatDateTime(complaint.submittedAt)}</td>
-                    <td>
+                    {/* <td>
                       <span className={`status-badge status-${complaint.status?.toLowerCase() || 'pendiente'}`}>
                         {complaint.status || 'PENDIENTE'}
                       </span>
-                    </td>
+                    </td> */}
                     <td>
                       <button
                         className="btn btn-view"
@@ -369,6 +381,11 @@ const ComplaintManagement = () => {
           )}
         </>
       )}
+      <ComplaintDetailModal 
+        complaint={selectedComplaint}
+        isOpen={isModalOpen}
+        onClose={closeModal}
+      />
     </div>
   );
 };

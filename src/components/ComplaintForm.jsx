@@ -273,12 +273,13 @@ const ComplaintForm = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="department">Departamento</label>
+            <label htmlFor="department">Departamento *</label>
             <select
               id="department"
               name="department"
               value={formData.department}
               onChange={handleChange}
+              required
             >
               <option value="">Seleccione un departamento</option>
               {departments.map(dept => (

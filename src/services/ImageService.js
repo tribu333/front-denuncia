@@ -1,5 +1,5 @@
 // services/ImageService.js
-const API_URL = 'http://localhost:8080/api/imagenes';
+const API_BASE_URL = '/api/imagenes';
 
 class ImageService {
   async uploadImage(file, denunciaId) {
@@ -7,7 +7,7 @@ class ImageService {
     formData.append('file', file);
     formData.append('denunciaId', denunciaId);
 
-    const response = await fetch(`${API_URL}/upload`, {
+    const response = await fetch(`${API_BASE_URL}/upload`, {
       method: 'POST',
       body: formData
     });
@@ -28,7 +28,7 @@ class ImageService {
     });
     formData.append('idComplaint', denunciaId);
 
-    const response = await fetch(`${API_URL}/subir-multiples`, {
+    const response = await fetch(`${API_BASE_URL}/subir-multiples`, {
       method: 'POST',
       body: formData
     });
@@ -42,7 +42,7 @@ class ImageService {
   }
 
   async getImagenesByDenuncia(denunciaId) {
-    const response = await fetch(`${API_URL}/denuncia/${denunciaId}`);
+    const response = await fetch(`${API_BASE_URL}/denuncia/${denunciaId}`);
     
     if (!response.ok) {
       throw new Error('Error al obtener las imágenes');
@@ -52,7 +52,7 @@ class ImageService {
   }
 
   getImageUrl(nombreArchivo) {
-    return `${API_URL}/descargar/${nombreArchivo}`;
+    return `${API_BASE_URL}/descargar/${nombreArchivo}`;
   }
 }
 

@@ -1,5 +1,7 @@
+// ComplaintForm.jsx (actualizado)
 import { useState } from 'react';
 import { complaintService } from '../services/ComplaintService';
+import ImageUploader from '../components/ImageUploader';
 import './ComplaintForm.css';
 
 const ComplaintForm = () => {
@@ -18,6 +20,8 @@ const ComplaintForm = () => {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
   const [complaintCode, setComplaintCode] = useState('');
+  const [denunciaId, setDenunciaId] = useState(null);
+  const [imagesUploaded, setImagesUploaded] = useState(false);
 
   const complaintTypes = [
     'Acoso Laboral',
@@ -56,6 +60,7 @@ const ComplaintForm = () => {
       const response = await complaintService.createComplaint(formData);
       setSuccess(true);
       setComplaintCode(response.complaintCode);
+      setDenunciaId(response.id); // Asumiendo que el backend retorna el ID
       
       // Limpiar formulario
       setFormData({
@@ -79,6 +84,16 @@ const ComplaintForm = () => {
     }
   };
 
+  const handleUploadSuccess = (response) => {
+    setImagesUploaded(true);
+    console.log('Imágenes subidas exitosamente:', response);
+  };
+
+  const handleUploadError = (error) => {
+    console.error('Error al subir imágenes:', error);
+    // Puedes mostrar un mensaje de error adicional si lo deseas
+  };
+
   return (
     <div className="complaint-form-container">
       <div className="complaint-form-header">
@@ -91,6 +106,11 @@ const ComplaintForm = () => {
           <h3>✓ Denuncia registrada exitosamente</h3>
           <p>Su código de seguimiento es: <strong>{complaintCode}</strong></p>
           <p>Guarde este código para consultar el estado de su denuncia.</p>
+          {denunciaId && !imagesUploaded && (
+            <p className="alert-note">
+              ℹ️ Ahora puede adjuntar imágenes como evidencia en la sección de abajo
+            </p>
+          )}
         </div>
       )}
 
@@ -226,6 +246,18 @@ const ComplaintForm = () => {
           <p>Su identidad permanecerá anónima y confidencial</p>
         </div>
       </form>
+
+      {/* Sección de imágenes - Solo se muestra después de crear la denuncia */}
+      {denunciaId && (
+        <div className="form-section images-section">
+          <ImageUploader
+            denunciaId={denunciaId}
+            onUploadSuccess={handleUploadSuccess}
+            onUploadError={handleUploadError}
+            maxImages={5}
+          />
+        </div>
+      )}
     </div>
   );
 };
